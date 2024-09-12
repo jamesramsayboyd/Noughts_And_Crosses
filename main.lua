@@ -79,7 +79,7 @@ two_cell_connections = {
     {5, 6, 8} -- 9
 }
 
--- Keeps track of two-in-a-row connections
+-- Keeps track of two-in-a-row connections as they are made during a game
 two_in_a_rows = {}
 
 -- Table representing all possible three-in-a-row connections
@@ -106,7 +106,7 @@ local function set_player_tokens()
     end
 end
 
--- Uses connected_cells table to identify any two-in-a-row connections and add them to a table
+-- Uses two_cell_connections table to identify any two-in-a-row connections and add them to a table
 local function identify_two_in_a_row(token)
     for i = 1, 9 do
         for k, v in pairs(two_cell_connections[i]) do
@@ -119,6 +119,7 @@ local function identify_two_in_a_row(token)
     end
 end
 
+-- Uses three_cell_connections table to identify any three-in-a-row connections and end the game
 local function identify_three_in_a_row(token)
     for i = 1, 8 do
         line = three_cell_connections[i]
@@ -127,15 +128,6 @@ local function identify_three_in_a_row(token)
             game_over = true
             break
         end
-    end
-end
-
-
--- Checks for three in a row
--- Not yet implemented
-local function check_for_winner()
-    if true then
-        game_over = true
     end
 end
 
@@ -191,18 +183,52 @@ local function easy_opponent_move ()
     end
 end
 
+
+local function complete_two_in_a_row(token)
+    print("Completing two in a row")
+end
+
+local function create_two_lines_of_two(token)
+    print("Creating two lines of two")
+end
+
+-- Fills the opposite corner cell
+local function fill_opposite_corner(cell, token)
+    if cell == 1 then
+        fill_cell(9, token)
+    else if cell == 3 then
+        fill_cell(7, token)
+    else if cell == 7 then
+        fill_cell(3, token)
+    else if cell == 9 then
+        fill_cell(1, token)
+    end
+end
+
+
 -- OPPONENT'S TURN (HARD MODE, COMPUTER FOLLOWS RULES)
 -- Not yet implemented
-local function hard_opponent_move (event, t)
-    -- Loop through cells to find array of empty ones, i.e. where board[i][7] == 0
-    -- Follow given logic to find best cell
-    -- Fill with appropriate image (X or O)
-    -- Mark cell filled
-
-    if board[1][7] == 1 or board[3][7] == 1 or board[7][7] == 1 or board[9][7] == 1 then
-        print("test")
+local function hard_opponent_move ()
+    -- LOGIC IN PSEUDOCODE:
+    -- If any player has two in a row, play the remaining square
+    if table.maxn(two_in_a_rows) > 0 then
+        complete_two_in_a_row(computer_token)
+    -- Else if you can create two lines of two, play that move
+    else if (true)
+        create_two_lines_of_two(computer_token)
+    -- Else if centre is free (i.e. cell 5), play there
+    else if board[5][7] == 0 then
+        fill_cell(5, computer_token)
+    -- Else if player 1 has played in a corner, play opposite corner
+    else if (board[1][7] == player_1_token or board[3][7] == player_1_token or board[7][7] == player_1_token or board[9][7] == player_1_token)
+        fill_opposite_corner(1, computer_token) -- TODO: Do this in a loop, send appropriate index to function
+    -- Else if there is a free corner, play there
+    else if (board[1][7] == 0 or board[3][7] == 0 or board[7][7] == 0 or board[9][7] == 0)
+        fill_cell(1, computer_token)
+    -- Else, play any empty square
+    else
+        easy_opponent_move()
     end
-
 end
 
 --FILL COMPARTMENT W/ COLOUR WHEN TOUCHED

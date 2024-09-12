@@ -65,6 +65,35 @@ board ={
 }
 --
 
+-- Table representing all possible instances of two-in-a-row connections
+-- Usage: Numbers in connected_cells[i] are other board cells that touch board[i]
+two_cell_connections = {
+    {2, 4, 5}, -- 1 is connected to 2, 4 and 5
+    {1, 3, 5}, -- 2 is connected etc
+    {2, 5, 6}, -- 3
+    {1, 5, 7}, -- 4
+    {2, 4, 6, 8}, -- 5
+    {3, 5, 9}, -- 6
+    {4, 5, 8}, -- 7
+    {5, 7, 9}, -- 8
+    {5, 6, 8} -- 9
+}
+
+-- Keeps track of two-in-a-row connections
+two_in_a_rows = {}
+
+-- Table representing all possible three-in-a-row connections
+three_cell_connections = {
+    {1, 2, 3},
+    {1, 4, 7},
+    {1, 5, 9},
+    {2, 4, 8},
+    {3, 6, 9},
+    {3, 5, 6},
+    {4, 5, 6},
+    {7, 8, 9}
+}
+
 -- Allows player to choose to play as X or O
 -- Not yet implemented
 local function set_player_tokens()
@@ -76,6 +105,31 @@ local function set_player_tokens()
         computer_token = "O"
     end
 end
+
+-- Uses connected_cells table to identify any two-in-a-row connections and add them to a table
+local function identify_two_in_a_row(token)
+    for i = 1, 9 do
+        for k, v in pairs(two_cell_connections[i]) do
+            if (board[i][7] == token and board[v][7] == token) then
+                print("Two " .. token .. "s in a row: cell " .. i .. " and cell " .. v)
+                table.insert(two_in_a_rows, {i, v, token})
+                break
+            end
+        end
+    end
+end
+
+local function identify_three_in_a_row(token)
+    for i = 1, 8 do
+        line = three_cell_connections[i]
+        if (board[line[1]][7] == token and board[line[2]][7] == token and board[line[3]][7] == token) then
+            print("Three cell connection found, " .. token .." wins")
+            game_over = true
+            break
+        end
+    end
+end
+
 
 -- Checks for three in a row
 -- Not yet implemented
@@ -111,9 +165,11 @@ local function fill_cell (cell, token)
     log_move_to_console(token, cell)
 
     -- Mark cell as filled
-    board[cell][7] = 1
+    board[cell][7] = token
     turn = turn + 1
     
+    identify_two_in_a_row(token)
+    identify_three_in_a_row(token)
     check_for_game_over()
 end
 
@@ -142,6 +198,11 @@ local function hard_opponent_move (event, t)
     -- Follow given logic to find best cell
     -- Fill with appropriate image (X or O)
     -- Mark cell filled
+
+    if board[1][7] == 1 or board[3][7] == 1 or board[7][7] == 1 or board[9][7] == 1 then
+        print("test")
+    end
+
 end
 
 --FILL COMPARTMENT W/ COLOUR WHEN TOUCHED

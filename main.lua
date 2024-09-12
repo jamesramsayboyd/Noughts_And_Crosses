@@ -65,6 +65,9 @@ board ={
 }
 --
 
+-- Table representing cells at the corners of the board, used in Hard Mode logic
+corner_cells = {1, 3, 7, 9}
+
 -- Table representing all possible instances of two-in-a-row connections
 -- Usage: Numbers in connected_cells[i] are other board cells that touch board[i]
 two_cell_connections = {
@@ -196,11 +199,11 @@ end
 local function fill_opposite_corner(cell, token)
     if cell == 1 then
         fill_cell(9, token)
-    else if cell == 3 then
+    elseif cell == 3 then
         fill_cell(7, token)
-    else if cell == 7 then
+    elseif cell == 7 then
         fill_cell(3, token)
-    else if cell == 9 then
+    elseif cell == 9 then
         fill_cell(1, token)
     end
 end
@@ -214,17 +217,17 @@ local function hard_opponent_move ()
     if table.maxn(two_in_a_rows) > 0 then
         complete_two_in_a_row(computer_token)
     -- Else if you can create two lines of two, play that move
-    else if (true)
+    elseif (true) then
         create_two_lines_of_two(computer_token)
     -- Else if centre is free (i.e. cell 5), play there
-    else if board[5][7] == 0 then
+    elseif board[5][7] == 0 then
         fill_cell(5, computer_token)
     -- Else if player 1 has played in a corner, play opposite corner
-    else if (board[1][7] == player_1_token or board[3][7] == player_1_token or board[7][7] == player_1_token or board[9][7] == player_1_token)
+    elseif (board[1][7] == player_1_token or board[3][7] == player_1_token or board[7][7] == player_1_token or board[9][7] == player_1_token) then
         fill_opposite_corner(1, computer_token) -- TODO: Do this in a loop, send appropriate index to function
     -- Else if there is a free corner, play there
-    else if (board[1][7] == 0 or board[3][7] == 0 or board[7][7] == 0 or board[9][7] == 0)
-        fill_cell(1, computer_token)
+    elseif (board[1][7] == 0 or board[3][7] == 0 or board[7][7] == 0 or board[9][7] == 0) then
+        fill_cell(1, computer_token) -- TODO: Do this in a loop, send appropriate index to function
     -- Else, play any empty square
     else
         easy_opponent_move()

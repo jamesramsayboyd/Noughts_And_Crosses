@@ -302,15 +302,22 @@ end
 
 -- Fills the opposite corner cell
 local function fill_opposite_corner(cell, token)
-    if cell == 1 then
-            fill_cell(9, token)
-    elseif cell == 3 then
-            fill_cell(7, token)
-    elseif cell == 7 then
-            fill_cell(3, token)
-    elseif cell == 9 then
-            fill_cell(1, token)
+    -- if cell == 1 then
+    --         fill_cell(9, token)
+    -- elseif cell == 3 then
+    --         fill_cell(7, token)
+    -- elseif cell == 7 then
+    --         fill_cell(3, token)
+    -- elseif cell == 9 then
+    --         fill_cell(1, token)
+    -- end
+
+    for i = 1, 4 do
+        if cell == corner_cells[i][1] then
+            fill_cell(corner_cells[i][2], token)
+        end
     end
+
 end
 
 local function complete_two_in_a_row(token)

@@ -3,6 +3,9 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
+local widget = require( "widget" )
+local timer = require ( "timer" )
+
 -- Flag for game active/over
 game_over = false
 
@@ -47,6 +50,72 @@ bline.strokeWidth = 5
 local tline = d.newLine(w20,h60,w80,h60 )
 tline.strokeWidth = 5
 
+local function reset_game()
+    for i in 1, 9 do
+        board[i][7] = 0
+    end
+end
+
+-- NEW GAME (EASY) BUTTON
+local function new_game_easy_button_listener(event)
+    if event.phase == "began" then
+        easy_mode = true
+        reset_game()
+        print("New game easy button pressed")
+    end
+end
+
+-- local new_game_easy_button = display.newRect(100, 100, 200, 50)
+-- local function handle_new_game_easy_button_event(event)
+--         print("New Game (Easy) button was pressed")
+-- end
+
+-- local new_game_easy_button = widget.newButton
+--     {
+--         label = "New Game (Easy)",
+--         onPress = handle_new_game_easy_button_event,
+--         emboss = false,
+--         shape = "roundedRect",
+--         width = 100,
+--         height = 40,
+--         cornerRadius = 2,
+--         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+--         strokeColor = { default={1,0.4,0,1}}, over={0.8,0.8,1,1},
+--         strokeWidth = 4,
+--         x = 100,
+--         y = 30
+--     }
+
+-- new_game_easy_button.x = 100
+-- new_game_easy_button.y = 30
+-- -- new_game_easy_button:setLabel{ "New Game (Easy)" }
+-- new_game_easy_button:setLabel{ "Easy" }
+
+-- NEW GAME (HARD) BUTTON
+-- local function handle_new_game_hard_button_event(event)
+--     if (event.phase == "ended") then
+--         print("New Game (Hard) button was pressed")
+--     end
+-- end
+
+-- local new_game_hard_button = widget.newButton(
+--     {
+--         label = "new_game_hard_button",
+--         onEvent = handle_new_game_hard_button_event,
+--         emboss = false,
+--         shape = "roundedRect",
+--         width = 100,
+--         height = 40,
+--         cornerRadius = 2,
+--         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
+--         strokeColor = { default={1,0.4,0,1}}, over={0.8,0.8,1,1},
+--         strokeWidth = 4
+--     }
+-- )
+
+-- new_game_hard_button.x = 220
+-- new_game_hard_button.y = 30
+-- new_game_hard_button:setLabel{ "Hard" }
 
 --PLACE BOARD COMPARTMENT DIMENSIONS IN TABLE
 -- Using board[i][7] as marker of whether cell is filled. 0 == not filled, 1 == filled
@@ -66,7 +135,14 @@ board ={
 --
 
 -- Table representing cells at the corners of the board, used in Hard Mode logic
-corner_cells = {1, 3, 7, 9}
+corner_cells = {
+    {1, 9},
+    {3, 7},
+    {7, 3},
+    {9, 1}
+}
+
+-- corner_cells = {1, 3, 7, 9}
 
 -- Table representing all possible instances of two-in-a-row connections
 -- Usage: Numbers in connected_cells[i] are other board cells that touch board[i]
@@ -85,14 +161,25 @@ two_cell_connections = {
 -- Keeps track of two-in-a-row connections as they are made during a game
 two_in_a_rows = {}
 
+-- Table representing all possible instances of two-rows-of-two connections
+two_rows_of_two_connections = {
+    {1, 2, 4, 5},
+    {2, 3, 5, 6},
+    {4, 5, 7, 8},
+    {5, 6, 8, 9}
+}
+
+-- Keeps track of two-rows-of-two connections as they are made during a game
+two_rows_of_twos = {}
+
 -- Table representing all possible three-in-a-row connections
 three_cell_connections = {
     {1, 2, 3},
     {1, 4, 7},
     {1, 5, 9},
-    {2, 4, 8},
+    {2, 5, 8},
     {3, 6, 9},
-    {3, 5, 6},
+    {3, 5, 7},
     {4, 5, 6},
     {7, 8, 9}
 }
@@ -109,6 +196,15 @@ local function set_player_tokens()
     end
 end
 
+-- Identifies winner
+local function identify_winner(token)
+    if token == player_1_token then
+        print("Player 1 wins!")
+    else
+        print("Computer wins!")
+    end
+end
+
 -- Uses two_cell_connections table to identify any two-in-a-row connections and add them to a table
 local function identify_two_in_a_row(token)
     for i = 1, 9 do
@@ -122,6 +218,18 @@ local function identify_two_in_a_row(token)
     end
 end
 
+local function identify_two_rows_of_two(token)
+    for i = 1, 4 do
+        for k, v in pairs(two_rows_of_two_connections[i]) do
+            if (board[i][7] == token and board[v][7] == token) then
+                print("Two rows of two found for " .. token .. " in cells " .. v)
+                table.insert(two_rows_of_twos, {i, v, token})
+                break
+            end
+        end
+    end
+end
+
 -- Uses three_cell_connections table to identify any three-in-a-row connections and end the game
 local function identify_three_in_a_row(token)
     for i = 1, 8 do
@@ -129,10 +237,34 @@ local function identify_three_in_a_row(token)
         if (board[line[1]][7] == token and board[line[2]][7] == token and board[line[3]][7] == token) then
             print("Three cell connection found, " .. token .." wins")
             game_over = true
+            identify_winner(token)
             break
         end
     end
 end
+
+local function identify_corner_cell(token)
+    for i = 1, 4 do
+        cell = corner_cells[i][1]
+        opposite_cell = corner_cells[i][2]
+        if board[cell][7] == token and board[opposite_cell][7] == 0 then
+            print("Identify_corner_cell() identifies " .. cell)
+            return cell
+        end
+    end
+    return 0
+end
+
+local function identify_free_corner_cell()
+    for i = 1, 4 do
+        cell = corner_cells[i][1]
+        if board[cell][7] == 0 then
+            return cell
+        end
+    end
+    return 0
+end
+
 
 -- Checks for game over (max 9 turns)
 local function check_for_game_over()
@@ -168,6 +300,27 @@ local function fill_cell (cell, token)
     check_for_game_over()
 end
 
+-- Fills the opposite corner cell
+local function fill_opposite_corner(cell, token)
+    if cell == 1 then
+            fill_cell(9, token)
+    elseif cell == 3 then
+            fill_cell(7, token)
+    elseif cell == 7 then
+            fill_cell(3, token)
+    elseif cell == 9 then
+            fill_cell(1, token)
+    end
+end
+
+local function complete_two_in_a_row(token)
+    print("Completing two in a row")
+end
+
+local function create_two_lines_of_two(token)
+    print("Creating two lines of two")
+end
+
 -- OPPONENT'S TURN (EASY MODE, COMPUTER PLAYS RANDOMLY)
 -- Generate random number, check if that cell is empty
 -- Fill with appropriate image (X or O)
@@ -179,7 +332,9 @@ local function easy_opponent_move ()
             cell = math.random(1,9)
             if board[cell][7] == 0 then
                 -- TODO: Make the computer wait a second so its move doesn't appear instantly
-                fill_cell(cell, computer_token)
+                -- fill_cell(cell, computer_token)
+                print("timer.performwithdelay")
+                timer.performWithDelay(5000, fill_cell(cell, computer_token))
                 break
             end
         end
@@ -187,49 +342,33 @@ local function easy_opponent_move ()
 end
 
 
-local function complete_two_in_a_row(token)
-    print("Completing two in a row")
-end
-
-local function create_two_lines_of_two(token)
-    print("Creating two lines of two")
-end
-
--- Fills the opposite corner cell
-local function fill_opposite_corner(cell, token)
-    if cell == 1 then
-        fill_cell(9, token)
-    elseif cell == 3 then
-        fill_cell(7, token)
-    elseif cell == 7 then
-        fill_cell(3, token)
-    elseif cell == 9 then
-        fill_cell(1, token)
-    end
-end
-
-
 -- OPPONENT'S TURN (HARD MODE, COMPUTER FOLLOWS RULES)
 -- Not yet implemented
-local function hard_opponent_move ()
-    -- LOGIC IN PSEUDOCODE:
+local function hard_opponent_move (player_move)
+    -- LOGIC TAKEN FROM ASSIGNMENT DOCUMENT:
     -- If any player has two in a row, play the remaining square
     if table.maxn(two_in_a_rows) > 0 then
+        print("Hard Opponent Move: Two in a row connection found")
         complete_two_in_a_row(computer_token)
     -- Else if you can create two lines of two, play that move
-    elseif (true) then
+    elseif table.maxn(two_rows_of_twos) > 0 then
+        print("Hard Opponent Move: Two rows of two possible")
         create_two_lines_of_two(computer_token)
     -- Else if centre is free (i.e. cell 5), play there
     elseif board[5][7] == 0 then
+        print("Hard Opponent Move: Middle cell is free")
         fill_cell(5, computer_token)
     -- Else if player 1 has played in a corner, play opposite corner
-    elseif (board[1][7] == player_1_token or board[3][7] == player_1_token or board[7][7] == player_1_token or board[9][7] == player_1_token) then
-        fill_opposite_corner(1, computer_token) -- TODO: Do this in a loop, send appropriate index to function
+    elseif (identify_corner_cell(player_1_token) ~= 0) then
+        print("Hard Opponent Move: Corner cell filled, playing opposite corner")
+        fill_opposite_corner(player_move, computer_token)
     -- Else if there is a free corner, play there
-    elseif (board[1][7] == 0 or board[3][7] == 0 or board[7][7] == 0 or board[9][7] == 0) then
-        fill_cell(1, computer_token) -- TODO: Do this in a loop, send appropriate index to function
+    elseif (identify_free_corner_cell() ~= 0) then
+        print("Hard Opponent Move: Corner cell free")
+        fill_cell(identify_free_corner_cell(), computer_token)
     -- Else, play any empty square
     else
+        print("Hard Opponent Move: All other options exhausted, playing random square")
         easy_opponent_move()
     end
 end
@@ -243,8 +382,15 @@ local function fill (event)
                 if event.x > board[t][3] and event.x < board [t][5] then
                     if event.y < board[t][4] and event.y > board[t][6] then
                         if board[t][7] == 0 then
+                            print("t = " .. t)
                             fill_cell (t, player_1_token)
-                            easy_opponent_move()
+                            -- easy_opponent_move()
+                            hard_opponent_move(t)
+                            -- if (identify_corner_cell(player_1_token) ~= 0) then
+                            --     print("Hard Opponent Move: Corner cell filled, playing opposite corner")
+                            --     fill_opposite_corner(identify_corner_cell(player_1_token), computer_token)
+                            -- end
+                            
                         end
                     end
                 end
@@ -255,4 +401,7 @@ local function fill (event)
     end
 end
 
+-- new_game_easy_button:addEventListener("touch", handle_new_game_easy_button_event)
+-- new_game_hard_button:addEventListener("touch", handle_new_game_hard_button_event)
+-- new_game_easy_button:addEventListener("touch", new_game_easy_button_listener)
 Runtime:addEventListener("touch", fill)

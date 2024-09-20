@@ -206,17 +206,17 @@ local function identify_winner(token)
 end
 
 -- Uses two_cell_connections table to identify any two-in-a-row connections and add them to a table
-local function identify_two_in_a_row(token)
-    for i = 1, 9 do
-        for k, v in pairs(two_cell_connections[i]) do
-            if (board[i][7] == token and board[v][7] == token) then
-                print("Two " .. token .. "s in a row: cell " .. i .. " and cell " .. v)
-                table.insert(two_in_a_rows, {i, v, token})
-                break
-            end
-        end
-    end
-end
+-- local function identify_two_in_a_row(token)
+--     for i = 1, 9 do
+--         for k, v in pairs(two_cell_connections[i]) do
+--             if (board[i][7] == token and board[v][7] == token) then
+--                 print("Two " .. token .. "s in a row: cell " .. i .. " and cell " .. v)
+--                 table.insert(two_in_a_rows, {i, v, token})
+--                 break
+--             end
+--         end
+--     end
+-- end
 
 local function identify_two_rows_of_two(token)
     for i = 1, 4 do
@@ -243,7 +243,7 @@ local function identify_three_in_a_row(token)
     end
 end
 
-local function identify_corner_cell(token)
+local function identify_opponent_corner_cell(token)
     for i = 1, 4 do
         cell = corner_cells[i][1]
         opposite_cell = corner_cells[i][2]
@@ -292,36 +292,99 @@ local function fill_cell (cell, token)
     log_move_to_console(token, cell)
 
     -- Mark cell as filled
-    board[cell][7] = token
-    turn = turn + 1
+    if (board[cell][7] == 0) then
+        board[cell][7] = token
+        turn = turn + 1
+    end
     
-    identify_two_in_a_row(token)
+    -- identify_two_in_a_row(token)
     identify_three_in_a_row(token)
     check_for_game_over()
 end
 
 -- Fills the opposite corner cell
 local function fill_opposite_corner(cell, token)
-    -- if cell == 1 then
-    --         fill_cell(9, token)
-    -- elseif cell == 3 then
-    --         fill_cell(7, token)
-    -- elseif cell == 7 then
-    --         fill_cell(3, token)
-    -- elseif cell == 9 then
-    --         fill_cell(1, token)
-    -- end
-
     for i = 1, 4 do
-        if cell == corner_cells[i][1] then
+        if cell == corner_cells[i][1] and board[corner_cells[i][2]][7] == 0 then
             fill_cell(corner_cells[i][2], token)
         end
     end
 
 end
 
+-- Table representing all possible combos leading to a three-in-a-row
+-- Extremely amateurish, I'm not happy with this at all, but it's the best idea I have right now
+two_in_a_row_combinations = {
+    {1, 2, 3},
+    {1, 3, 2},
+    {1, 5, 9},
+    {1, 9, 5},
+    {1, 4, 7},
+    {1, 7, 4},
+    {2, 5, 8},
+    {2, 8, 5},
+    {3, 5, 7},
+    {3, 7, 5},
+    {3, 6, 9},
+    {3, 9, 6},
+    {4, 5, 6},
+    {4, 6, 5},
+    {5, 1, 9},
+    {5, 2, 8},
+    {5, 3, 7},
+    {5, 7, 3},
+    {5, 8, 2},
+    {5, 9, 1},
+    {6, 5, 4},
+    {6, 4, 5},
+    {6, 3, 9},
+    {6, 9, 3},
+    {7, 4, 1},
+    {7, 1, 4},
+    {7, 5, 3},
+    {7, 3, 5},
+    {7, 8, 9},
+    {7, 9, 8},
+    {8, 5, 2},
+    {8, 2, 5},
+    {9, 8, 7},
+    {9, 7, 8},
+    {9, 5, 1},
+    {9, 1, 5},
+    {9, 6, 3},
+    {9, 3, 6}
+}
+
+-- Uses two_cell_connections table to identify any two-in-a-row connections and add them to a table
+local function identify_two_in_a_row(token)
+    -- Get length of two_in_a_row_combinations table:
+    local count = 0
+    for _ in pairs(two_in_a_row_combinations) do count = count + 1 end
+
+    print("Identifying two-in-a-rows")
+    for i = 1, count do
+        row = two_in_a_row_combinations[i]
+        if (board[row[1]][7] == token and board[row[2]][7] == token) then   -- If first two cells of potential row are filled by player
+            if board[row[3]][7] == 0 then                                   -- If last cell is free
+                -- return true
+                print("Two-in-a-row found, cell " .. row[3] .. " should be filled")
+                return row[3]
+            end
+        end
+    end
+    print("No incomplete two-in-a-rows found")
+end
+
 local function complete_two_in_a_row(token)
-    print("Completing two in a row")
+    print("Completing two-in-a-row")
+    for i = 1, 23 do
+        row = two_in_a_row_combinations[i]
+        if (board[row[1]][7] ~= 0 and board[row[1]][7] == board[row[2]][7] and board[row[3]][7] == 0) then
+            fill_cell(row[3], token)
+            break
+        end
+    end
+
 end
 
 local function create_two_lines_of_two(token)
@@ -338,6 +401,7 @@ local function easy_opponent_move ()
         do
             cell = math.random(1,9)
             if board[cell][7] == 0 then
+                print("Free cell = " .. cell)
                 -- TODO: Make the computer wait a second so its move doesn't appear instantly
                 -- fill_cell(cell, computer_token)
                 print("timer.performwithdelay")
@@ -350,27 +414,27 @@ end
 
 
 -- OPPONENT'S TURN (HARD MODE, COMPUTER FOLLOWS RULES)
--- Not yet implemented
 local function hard_opponent_move (player_move)
     -- LOGIC TAKEN FROM ASSIGNMENT DOCUMENT:
     -- If any player has two in a row, play the remaining square
-    if table.maxn(two_in_a_rows) > 0 then
+    if identify_two_in_a_row(player_1_token) then       -- WORKING
         print("Hard Opponent Move: Two in a row connection found")
-        complete_two_in_a_row(computer_token)
+        fill_cell(identify_two_in_a_row(player_1_token), computer_token)
+        -- complete_two_in_a_row(computer_token)
     -- Else if you can create two lines of two, play that move
-    elseif table.maxn(two_rows_of_twos) > 0 then
+    elseif table.maxn(two_rows_of_twos) > 0 then        -- TODO
         print("Hard Opponent Move: Two rows of two possible")
         create_two_lines_of_two(computer_token)
     -- Else if centre is free (i.e. cell 5), play there
-    elseif board[5][7] == 0 then
+    elseif board[5][7] == 0 then      -- WORKING
         print("Hard Opponent Move: Middle cell is free")
         fill_cell(5, computer_token)
     -- Else if player 1 has played in a corner, play opposite corner
-    elseif (identify_corner_cell(player_1_token) ~= 0) then
+    elseif (identify_opponent_corner_cell(player_1_token) ~= 0) then      -- WORKING
         print("Hard Opponent Move: Corner cell filled, playing opposite corner")
-        fill_opposite_corner(player_move, computer_token)
+        fill_opposite_corner(identify_opponent_corner_cell(player_1_token), computer_token)
     -- Else if there is a free corner, play there
-    elseif (identify_free_corner_cell() ~= 0) then
+    elseif (identify_free_corner_cell() ~= 0) then      -- WORKING
         print("Hard Opponent Move: Corner cell free")
         fill_cell(identify_free_corner_cell(), computer_token)
     -- Else, play any empty square
@@ -392,12 +456,7 @@ local function fill (event)
                             print("t = " .. t)
                             fill_cell (t, player_1_token)
                             -- easy_opponent_move()
-                            hard_opponent_move(t)
-                            -- if (identify_corner_cell(player_1_token) ~= 0) then
-                            --     print("Hard Opponent Move: Corner cell filled, playing opposite corner")
-                            --     fill_opposite_corner(identify_corner_cell(player_1_token), computer_token)
-                            -- end
-                            
+                            hard_opponent_move(t)                            
                         end
                     end
                 end

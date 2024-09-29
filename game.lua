@@ -39,18 +39,18 @@ w80 = d.contentWidth * .8
 h80 = d.contentHeight * .8
 
 
-----DRAW LINES FOR BOARD
-local lline = d.newLine(w40,h20,w40,h80 )
-lline.strokeWidth = 5
+-- ----DRAW LINES FOR BOARD
+-- local lline = d.newLine(w40,h20,w40,h80 )
+-- lline.strokeWidth = 5
 
-local rline = d.newLine(w60,h20,w60,h80 )
-rline.strokeWidth = 5
+-- local rline = d.newLine(w60,h20,w60,h80 )
+-- rline.strokeWidth = 5
 
-local bline = d.newLine(w20,h40,w80,h40 )
-bline.strokeWidth = 5
+-- local bline = d.newLine(w20,h40,w80,h40 )
+-- bline.strokeWidth = 5
 
-local tline = d.newLine(w20,h60,w80,h60 )
-tline.strokeWidth = 5
+-- local tline = d.newLine(w20,h60,w80,h60 )
+-- tline.strokeWidth = 5
 
 local function reset_game()
     for i in 1, 9 do
@@ -125,6 +125,16 @@ three_cell_connections = {
     {7, 8, 9}
 }
 
+-- Function to handle Back to Title button press
+local function handleQuitToTitleButtonEvent( event )
+ 
+    if ( "ended" == event.phase ) then
+        print( "Quit to Title button pressed" )
+        composer.removeScene( "game" )
+        composer.gotoScene( "title" )
+    end
+end
+
 -- Allows player to choose to play as X or O
 -- Not yet implemented
 local function set_player_tokens()
@@ -137,6 +147,34 @@ local function set_player_tokens()
     end
 end
 
+-- Logs winner to stats.txt file
+local function log_winner(token)    
+    date = os.date('%Y-%m-%d %H:%M:%S')
+    game_data = ""
+    if token == player_1_token then
+        game_data = date .. " - Player 1 (" .. token .. ") wins\n"
+    else
+        game_data = date .. " - Computer (" .. token .. ") wins\n"
+    end
+
+    filepath = system.pathForFile( "stats.txt", system.DocumentsDirectory )
+
+    local file, errorString = io.open( filepath, "a")
+
+    if not file then
+        -- Error occurred; output the cause
+        print("File error: " .. errorString)
+    else
+        -- Append data to file
+        file:write(game_data)
+        -- Close the file handle
+        io.close(file)
+    end
+    file = nil
+end
+
+
+
 -- Identifies winner
 local function identify_winner(token)
     if token == player_1_token then
@@ -144,6 +182,8 @@ local function identify_winner(token)
     else
         print("Computer wins!")
     end
+
+    log_winner(token)
 end
 
 local function identify_two_rows_of_two(token)
@@ -423,6 +463,111 @@ local function fill (event)
     end
 end
 
-Runtime:addEventListener("touch", fill)
+-- -----------------------------------------------------------------------------------
+-- Scene event functions
+-- -----------------------------------------------------------------------------------
+
+-- create()
+function scene:create( event )
+
+    local sceneGroup = self.view
+
+    -- Game title (*difficulty* GAME)
+    local game_title = display.newText("GAME", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
+    sceneGroup:insert(game_title)
+
+    ----DRAW LINES FOR BOARD
+    local lline = d.newLine(w40,h20,w40,h80 )
+    lline.strokeWidth = 5
+    sceneGroup:insert(lline)
+
+    local rline = d.newLine(w60,h20,w60,h80 )
+    rline.strokeWidth = 5
+    sceneGroup:insert(rline)
+
+    local bline = d.newLine(w20,h40,w80,h40 )
+    bline.strokeWidth = 5
+    sceneGroup:insert(bline)
+
+    local tline = d.newLine(w20,h60,w80,h60 )
+    tline.strokeWidth = 5
+    sceneGroup:insert(tline)
+
+    -- Button for Quit to Title
+    local button_quit_to_title = widget.newButton(
+        {
+            id = "button_quit_to_title",
+            label = "QUIT TO TITLE",
+            onEvent = handleQuitToTitleButtonEvent,
+            emboss = false,
+            -- Properties for a rounded rectangle button
+            shape = "roundedRect",
+            width = 180,
+            height = 50,
+            cornerRadius = 2,
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
+            strokeWidth = 4,
+            x = centre,
+            y = view_stats_button_y
+        }
+    )
+    sceneGroup:insert(button_quit_to_title)
+
+    Runtime:addEventListener("touch", fill)
+
+end
+
+-- show()
+function scene:show( event )
+
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if ( phase == "will" ) then
+        -- Code here runs when the scene is still off screen (but is about to come on screen)
+
+    elseif ( phase == "did" ) then
+        -- Code here runs when the scene is entirely on screen
+
+    end
+end
+
+
+-- hide()
+function scene:hide( event )
+
+    local sceneGroup = self.view
+    local phase = event.phase
+
+    if ( phase == "will" ) then
+        -- Code here runs when the scene is on screen (but is about to go off screen)
+
+    elseif ( phase == "did" ) then
+        -- Code here runs immediately after the scene goes entirely off screen
+        composer.removeScene("title")
+    end
+end
+
+
+-- destroy()
+function scene:destroy( event )
+
+    local sceneGroup = self.view
+    -- Code here runs prior to the removal of scene's view
+end
+
+
+-- -----------------------------------------------------------------------------------
+-- Scene event function listeners
+-- -----------------------------------------------------------------------------------
+scene:addEventListener( "create", scene )
+scene:addEventListener( "show", scene )
+scene:addEventListener( "hide", scene )
+scene:addEventListener( "destroy", scene )
+-- -----------------------------------------------------------------------------------
+
+-- Runtime:addEventListener("touch", fill)
 
 return scene

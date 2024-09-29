@@ -13,7 +13,7 @@ local widget = require( "widget" )
 FONT = "Arial"
 TITLE_TEXT_SIZE = 27
 LABEL_TEXT_SIZE = 20
-MARGIN = 10
+MARGIN = 30
 
 -- Variables for game settings, passed to game.lua
 easy_mode = true
@@ -26,12 +26,13 @@ d = display
 centre = d.contentWidth / 2
 quarter_width = d.contentWidth / 4
 switch_y = d.contentHeight / 7
-start_game_button_y = d.contentHeight / 5 * 4
-view_stats_button_y = d.contentHeight
+start_game_button_y = d.contentHeight / 5 * 3.7
+view_stats_button_y = d.contentHeight - MARGIN
 
--- Display 'Noughts & Crosses' title png
-app_title = "images/title.png"
-local title_image
+-- Colours for buttons, sliders
+black = {0, 0, 0, 1}
+grey = {0.66, 0.66, 0.66, 1}
+white = {1, 1, 1, 1}
 
 -- Handle press events for difficulty switch
 local function onDifficultySwitchPress( event )
@@ -79,6 +80,7 @@ local function handleStartGameButtonEvent( event )
  
     if ( "ended" == event.phase ) then
         print( "Start Game button pressed" )
+        composer.gotoScene( "game" )
     end
 end
 
@@ -101,31 +103,27 @@ end
 function scene:create( event )
 
     local sceneGroup = self.view
-    -- Code here runs when the scene is first created but has not yet appeared on screen
-	
-    -- title_image = display.newImage(app_title)
-    -- title_image.xScale = 0.15
-    -- title_image.yScale = 0.15
-    -- title_image.x = centre
-    -- title_image.y = 30
-    -- sceneGroup:insert(title_image)
 
-    local app_title = display.newText("NOUGHTS & CROSSES", centre, 30, FONT, TITLE_TEXT_SIZE)
+    -- App title (NOUGHTS & CROSSES)
+    local app_title = display.newText("NOUGHTS & CROSSES", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
     sceneGroup:insert(app_title)
 
+    -- Difficulty switch label and options
     local difficulty_switch_label = display.newText("DIFFICULTY", centre, switch_y * 2 - 31, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(difficulty_switch_label)
     local difficulty_switch_options = display.newText("  EASY               HARD", centre, switch_y * 2, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(difficulty_switch_options)
 
+    -- Player token switch label and options
     local player_token_switch_label = display.newText("PLAYER TOKEN", centre, switch_y * 3 - 31, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(player_token_switch_label)
     local player_token_switch_options = display.newText(" O               X", centre, switch_y * 3, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(player_token_switch_options)
 
+    -- First turn switch label and options
     local play_order_switch_label = display.newText("FIRST TURN", centre, switch_y * 4 - 31, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(play_order_switch_label)
-    local play_order_switch_options = display.newText("    PLAYER 1               COMPUTER", centre, switch_y * 4, FONT, LABEL_TEXT_SIZE)
+    local play_order_switch_options = display.newText("    PLAYER 1              COMPUTER", centre, switch_y * 4, FONT, LABEL_TEXT_SIZE)
     sceneGroup:insert(play_order_switch_options)
 
     -- Switch for Easy Mode/Hard Mode selection
@@ -179,11 +177,12 @@ function scene:create( event )
             emboss = false,
             -- Properties for a rounded rectangle button
             shape = "roundedRect",
-            width = 120,
-            height = 80,
+            width = 180,
+            height = 50,
             cornerRadius = 2,
-            fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
-            strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
             y = start_game_button_y
@@ -200,11 +199,12 @@ function scene:create( event )
             emboss = false,
             -- Properties for a rounded rectangle button
             shape = "roundedRect",
-            width = 120,
+            width = 180,
             height = 50,
             cornerRadius = 2,
-            fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
-            strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
             y = view_stats_button_y

@@ -17,15 +17,34 @@ view_stats_button_y = d.contentHeight / 4 * 3
 clear_stats_button_y = d.contentHeight / 5 * 4
 back_to_title_button_y = d.contentHeight - 30
 
--- Function to read in stats file and display stats of previous games
-local function displayStats()
-    print("Reading stats file")
-    print("Displaying stats")
+-- -----------------------------------------------------------------------------------
+-- File I/O Functions
+-- -----------------------------------------------------------------------------------
+local filepath = system.pathForFile("stats.txt", system.DocumentsDirectory)
+-- local filepath = "files/stats.txt"
+
+local file, errorString = io.open( filepath, "r" )
+
+local function readStats()
+    if not file then
+        -- Error occurred; output the cause
+        print("File error: " .. errorString)
+    else
+        -- Output lines
+        for line in file:lines() do
+            print(line)
+        end
+        -- Close the file
+        io.close(file)
+    end
+
+    file = nil
 end
+
+    
 
 -- Function to handle Back to Title button press
 local function handleBackToTitleButtonEvent( event )
- 
     if ( "ended" == event.phase ) then
         print( "Back to Title button pressed" )
         composer.removeScene( "stats" )
@@ -35,9 +54,22 @@ end
 
 -- Function to handle Clear Stats button press
 local function handleClearStatsButtonEvent( event )
- 
     if ( "ended" == event.phase ) then
         print( "Clear Stats button pressed" )
+        filepath = system.pathForFile( "stats.txt", system.DocumentsDirectory )
+
+        local file, errorString = io.open( filepath, "w+")
+
+        if not file then
+            -- Error occurred; output the cause
+            print("File error: " .. errorString)
+        else
+            -- Append data to file
+            file:write("")
+            -- Close the file handle
+            io.close(file)
+        end
+        file = nil
     end
 end
 
@@ -52,13 +84,9 @@ function scene:create( event )
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
 	
-    -- 'NOUGHTS & CROSSES' title image
-    -- title_image = display.newImage(app_title)
-    -- title_image.xScale = 0.15
-    -- title_image.yScale = 0.15
-    -- title_image.x = centre
-    -- title_image.y = 30
-    -- sceneGroup:insert(title_image)
+    -- Stats page title (STATS)
+    local stats_title = display.newText("STATS", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
+    sceneGroup:insert(stats_title)
 
     -- Button for View Stats
     local button_clear_stats = widget.newButton(
@@ -69,11 +97,12 @@ function scene:create( event )
             emboss = false,
             -- Properties for a rounded rectangle button
             shape = "roundedRect",
-            width = 150,
+            width = 180,
             height = 50,
             cornerRadius = 2,
-            fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
-            strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
             y = clear_stats_button_y
@@ -93,14 +122,17 @@ function scene:create( event )
             width = 180,
             height = 50,
             cornerRadius = 2,
-            fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
-            strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
             y = back_to_title_button_y
         }
     )
     sceneGroup:insert(button_back_to_title)
+
+    readStats()
 end
 
 -- show()

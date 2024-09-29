@@ -10,77 +10,77 @@ local scene = composer.newScene()
 
 local widget = require( "widget" )
 
+FONT = "Arial"
+TITLE_TEXT_SIZE = 27
+LABEL_TEXT_SIZE = 20
+MARGIN = 10
+
+-- Variables for game settings, passed to game.lua
+easy_mode = true
+player_1_token = "O"
+computer_token = "X"
+player_first = true
+
 -- Variables for screen position
 d = display
 centre = d.contentWidth / 2
 quarter_width = d.contentWidth / 4
-new_game_button_y = d.contentHeight / 4
-view_stats_button_y = d.contentHeight / 4 * 3
+switch_y = d.contentHeight / 7
+start_game_button_y = d.contentHeight / 5 * 4
+view_stats_button_y = d.contentHeight
 
 -- Display 'Noughts & Crosses' title png
 app_title = "images/title.png"
 local title_image
--- title_image = display.newImage(app_title)
--- title_image.xScale = 0.15
--- title_image.yScale = 0.15
--- title_image.x = centre
--- title_image.y = 30
 
--- Function to handle New Game (Easy) button press
-local function handleNewGameEasyButtonEvent( event )
- 
-    if ( "ended" == event.phase ) then
-        print( "New Game (Easy) button pressed" )
+-- Handle press events for difficulty switch
+local function onDifficultySwitchPress( event )
+    local switch = event.target
+    print( "Switch with ID '"..switch.id.."' is on: "..tostring(switch.isOn) )
+    if switch.isOn then
+        easy_mode = true
+        print("Difficulty switched to Easy Mode, easy_mode boolean = " .. tostring(easy_mode))
+    else
+        easy_mode = false
+        print("Difficulty switched to Hard Mode, easy_mode boolean = " .. tostring(easy_mode))
     end
 end
 
--- -- Button for New Game (Easy)
--- local button_new_game_easy = widget.newButton(
---     {
---         id = "button_new_game_easy",
---         label = "NEW GAME\n     (EASY)",
---         onEvent = handleNewGameEasyButtonEvent,
---         emboss = false,
---         -- Properties for a rounded rectangle button
---         shape = "roundedRect",
---         width = 120,
---         height = 80,
---         cornerRadius = 2,
---         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
---         strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
---         strokeWidth = 4,
---         x = quarter_width,
---         y = new_game_button_y
---     }
--- )
-
--- Function to handle New Game (Hard) button press
-local function handleNewGameHardButtonEvent( event )
- 
-    if ( "ended" == event.phase ) then
-        print( "New Game (Hard) button pressed" )
+-- Handle press events for difficulty switch
+local function onPlayerTokenSwitchPress( event )
+    local switch = event.target
+    print( "Switch with ID '"..switch.id.."' is on: "..tostring(switch.isOn) )
+    if switch.isOn then
+        player_1_token = "O"
+        computer_token = "X"
+        print("Player 1 token = " .. player_1_token .. ", computer token = " .. computer_token)
+    else
+        player_1_token = "X"
+        computer_token = "O"
+        print("Player 1 token = " .. player_1_token .. ", computer token = " .. computer_token)
     end
 end
 
--- -- Button for New Game (Hard)
--- local button_new_game_hard = widget.newButton(
---     {
---         id = "button_new_game_easy",
---         label = "NEW GAME\n     (HARD)",
---         onEvent = handleNewGameHardButtonEvent,
---         emboss = false,
---         -- Properties for a rounded rectangle button
---         shape = "roundedRect",
---         width = 120,
---         height = 80,
---         cornerRadius = 2,
---         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
---         strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
---         strokeWidth = 4,
---         x = quarter_width * 3,
---         y = new_game_button_y
---     }
--- )
+-- Handle press events for play order switch
+local function onPlayOrderSwitchPress( event )
+    local switch = event.target
+    print( "Switch with ID '"..switch.id.."' is on: "..tostring(switch.isOn) )
+    if switch.isOn then
+        player_first = true
+        print("Player 1 goes first, player_first boolean = " .. tostring(player_first))
+    else
+        player_first = false
+        print("Computer goes first, player_first boolean = " .. tostring(player_first))
+    end
+end
+
+-- Function to handle Start Game button press
+local function handleStartGameButtonEvent( event )
+ 
+    if ( "ended" == event.phase ) then
+        print( "Start Game button pressed" )
+    end
+end
 
 -- Function to handle New Game (Hard) button press
 local function handleViewStatsButtonEvent( event )
@@ -93,30 +93,6 @@ local function handleViewStatsButtonEvent( event )
     end
 end
 
--- -- Button for View Stats
--- local button_view_stats = widget.newButton(
---     {
---         id = "button_view_stats",
---         label = "VIEW STATS",
---         onEvent = handleViewStatsButtonEvent,
---         emboss = false,
---         -- Properties for a rounded rectangle button
---         shape = "roundedRect",
---         width = 120,
---         height = 80,
---         cornerRadius = 2,
---         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
---         strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
---         strokeWidth = 4,
---         x = centre,
---         y = view_stats_button_y
---     }
--- )
-
-
-
-
-
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -127,18 +103,79 @@ function scene:create( event )
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
 	
-    title_image = display.newImage(app_title)
-    title_image.xScale = 0.15
-    title_image.yScale = 0.15
-    title_image.x = centre
-    title_image.y = 30
+    -- title_image = display.newImage(app_title)
+    -- title_image.xScale = 0.15
+    -- title_image.yScale = 0.15
+    -- title_image.x = centre
+    -- title_image.y = 30
+    -- sceneGroup:insert(title_image)
 
-    -- Button for New Game (Easy)
-    local button_new_game_easy = widget.newButton(
+    local app_title = display.newText("NOUGHTS & CROSSES", centre, 30, FONT, TITLE_TEXT_SIZE)
+    sceneGroup:insert(app_title)
+
+    local difficulty_switch_label = display.newText("DIFFICULTY", centre, switch_y * 2 - 31, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(difficulty_switch_label)
+    local difficulty_switch_options = display.newText("  EASY               HARD", centre, switch_y * 2, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(difficulty_switch_options)
+
+    local player_token_switch_label = display.newText("PLAYER TOKEN", centre, switch_y * 3 - 31, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(player_token_switch_label)
+    local player_token_switch_options = display.newText(" O               X", centre, switch_y * 3, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(player_token_switch_options)
+
+    local play_order_switch_label = display.newText("FIRST TURN", centre, switch_y * 4 - 31, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(play_order_switch_label)
+    local play_order_switch_options = display.newText("    PLAYER 1               COMPUTER", centre, switch_y * 4, FONT, LABEL_TEXT_SIZE)
+    sceneGroup:insert(play_order_switch_options)
+
+    -- Switch for Easy Mode/Hard Mode selection
+    local difficulty_switch = widget.newSwitch(
         {
-            id = "button_new_game_easy",
-            label = "NEW GAME\n     (EASY)",
-            onEvent = handleNewGameEasyButtonEvent,
+            left = 250,
+            top = 200,
+            style = "onOff",
+            id = "difficulty_switch",
+            x = centre,
+            y = switch_y * 2,
+            onPress = onDifficultySwitchPress
+        }
+    )
+    sceneGroup:insert(difficulty_switch)
+
+    -- Switch for Player token choice, O or X
+    local player_token_switch = widget.newSwitch(
+        {
+            left = 250,
+            top = 200,
+            style = "onOff",
+            id = "player_token_switch",
+            x = centre,
+            y = switch_y * 3,
+            onPress = onPlayerTokenSwitchPress
+        }
+    )
+    sceneGroup:insert(player_token_switch)
+
+     -- Switch for Player First/Computer First selection
+     local play_order_switch = widget.newSwitch(
+        {
+            left = 250,
+            top = 200,
+            style = "onOff",
+            id = "play_order_switch",
+            x = centre,
+            y = switch_y * 4,
+            onPress = onPlayOrderSwitchPress
+        }
+    )
+    sceneGroup:insert(play_order_switch)
+
+    -- Button for Start Game
+    local button_start_game = widget.newButton(
+        {
+            id = "button_start_game",
+            label = "START GAME",
+            onEvent = handleStartGameButtonEvent,
             emboss = false,
             -- Properties for a rounded rectangle button
             shape = "roundedRect",
@@ -148,30 +185,11 @@ function scene:create( event )
             fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
             strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
             strokeWidth = 4,
-            x = quarter_width,
-            y = new_game_button_y
+            x = centre,
+            y = start_game_button_y
         }
     )
-
-    -- Button for New Game (Hard)
-    local button_new_game_hard = widget.newButton(
-        {
-            id = "button_new_game_easy",
-            label = "NEW GAME\n     (HARD)",
-            onEvent = handleNewGameHardButtonEvent,
-            emboss = false,
-            -- Properties for a rounded rectangle button
-            shape = "roundedRect",
-            width = 120,
-            height = 80,
-            cornerRadius = 2,
-            fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
-            strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
-            strokeWidth = 4,
-            x = quarter_width * 3,
-            y = new_game_button_y
-        }
-    )
+    sceneGroup:insert(button_start_game)
 
     -- Button for View Stats
     local button_view_stats = widget.newButton(
@@ -183,7 +201,7 @@ function scene:create( event )
             -- Properties for a rounded rectangle button
             shape = "roundedRect",
             width = 120,
-            height = 80,
+            height = 50,
             cornerRadius = 2,
             fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
             strokeColor = { default={1,0.4,0,1}, over={0.8,0.8,1,1} },
@@ -192,11 +210,7 @@ function scene:create( event )
             y = view_stats_button_y
         }
     )
-	   
-    -- insert objects into the scene group
-    sceneGroup:insert(title_image, button_new_game_easy, button_new_game_hard, button_view_stats)
-
-
+    sceneGroup:insert(button_view_stats)
 end
 
 -- show()
@@ -226,7 +240,7 @@ function scene:hide( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-
+        composer.removeScene("title")
     end
 end
 

@@ -3,8 +3,14 @@
 -- game.lua
 --
 -----------------------------------------------------------------------------------------
+local composer = require( "composer" )
+local scene = composer.newScene()
+
 local widget = require( "widget" )
 local timer = require ( "timer" )
+
+-- Access game settings from title menu
+require("title")
 
 -- Flag for game active/over
 game_over = false
@@ -12,15 +18,11 @@ game_over = false
 -- Keeps track of players' turns, increments by 1 each time fill_cell() is called
 turn = 0
 
--- Flag for player/computer taking first turn
-player_first = true
-
--- Player tokens (i.e. X or O)
-player_1_token = "X"
-computer_token = "O"
-
--- Flag for Easy/Hard game mode
-easy_mode = true
+-- Variables for game settings
+-- easy_mode = true
+-- player_1_token = "O"
+-- computer_token = "X"
+-- player_first = true
 
 -- Table to keep track of game moves so player can undo a move or replay a game
 -- Not yet implemented
@@ -55,67 +57,6 @@ local function reset_game()
         board[i][7] = 0
     end
 end
-
--- NEW GAME (EASY) BUTTON
-local function new_game_easy_button_listener(event)
-    if event.phase == "began" then
-        easy_mode = true
-        reset_game()
-        print("New game easy button pressed")
-    end
-end
-
--- local new_game_easy_button = display.newRect(100, 100, 200, 50)
--- local function handle_new_game_easy_button_event(event)
---         print("New Game (Easy) button was pressed")
--- end
-
--- local new_game_easy_button = widget.newButton
---     {
---         label = "New Game (Easy)",
---         onPress = handle_new_game_easy_button_event,
---         emboss = false,
---         shape = "roundedRect",
---         width = 100,
---         height = 40,
---         cornerRadius = 2,
---         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
---         strokeColor = { default={1,0.4,0,1}}, over={0.8,0.8,1,1},
---         strokeWidth = 4,
---         x = 100,
---         y = 30
---     }
-
--- new_game_easy_button.x = 100
--- new_game_easy_button.y = 30
--- -- new_game_easy_button:setLabel{ "New Game (Easy)" }
--- new_game_easy_button:setLabel{ "Easy" }
-
--- NEW GAME (HARD) BUTTON
--- local function handle_new_game_hard_button_event(event)
---     if (event.phase == "ended") then
---         print("New Game (Hard) button was pressed")
---     end
--- end
-
--- local new_game_hard_button = widget.newButton(
---     {
---         label = "new_game_hard_button",
---         onEvent = handle_new_game_hard_button_event,
---         emboss = false,
---         shape = "roundedRect",
---         width = 100,
---         height = 40,
---         cornerRadius = 2,
---         fillColor = { default={1,0,0,1}, over={1,0.1,0.7,0.4} },
---         strokeColor = { default={1,0.4,0,1}}, over={0.8,0.8,1,1},
---         strokeWidth = 4
---     }
--- )
-
--- new_game_hard_button.x = 220
--- new_game_hard_button.y = 30
--- new_game_hard_button:setLabel{ "Hard" }
 
 --PLACE BOARD COMPARTMENT DIMENSIONS IN TABLE
 -- Using board[i][7] as marker of whether cell is filled. 0 == not filled, 1 == filled
@@ -204,19 +145,6 @@ local function identify_winner(token)
         print("Computer wins!")
     end
 end
-
--- Uses two_cell_connections table to identify any two-in-a-row connections and add them to a table
--- local function identify_two_in_a_row(token)
---     for i = 1, 9 do
---         for k, v in pairs(two_cell_connections[i]) do
---             if (board[i][7] == token and board[v][7] == token) then
---                 print("Two " .. token .. "s in a row: cell " .. i .. " and cell " .. v)
---                 table.insert(two_in_a_rows, {i, v, token})
---                 break
---             end
---         end
---     end
--- end
 
 local function identify_two_rows_of_two(token)
     for i = 1, 4 do
@@ -495,7 +423,6 @@ local function fill (event)
     end
 end
 
--- new_game_easy_button:addEventListener("touch", handle_new_game_easy_button_event)
--- new_game_hard_button:addEventListener("touch", handle_new_game_hard_button_event)
--- new_game_easy_button:addEventListener("touch", new_game_easy_button_listener)
 Runtime:addEventListener("touch", fill)
+
+return scene

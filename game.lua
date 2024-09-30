@@ -514,9 +514,6 @@ function scene:create( event )
 
     add_touch_event_listener("add")
 
-    -- TODO: Find out how to remove this
-    -- Runtime:addEventListener("touch", fill)
-
     if not player_first then
         if easy_mode then
             print("computer making first move, easy mode")

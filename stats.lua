@@ -23,25 +23,37 @@ back_to_title_button_y = d.contentHeight - 30
 local filepath = system.pathForFile("stats.txt", system.DocumentsDirectory)
 -- local filepath = "files/stats.txt"
 
-local file, errorString = io.open( filepath, "r" )
+
 
 local function readStats()
+    -- Table to store lines from stats.txt file
+    local stats_table = {}
+    local file, errorString = io.open( filepath, "r" )
+
     if not file then
         -- Error occurred; output the cause
         print("File error: " .. errorString)
     else
         -- Output lines
         for line in file:lines() do
+            table.insert(stats_table, line)
             print(line)
         end
         -- Close the file
         io.close(file)
+        
     end
 
     file = nil
+    
+    return stats_table
 end
 
-    
+-- local function displayStats()
+--     local stats_table = readStats()
+
+--     for line in stats_table do
+--         display
 
 -- Function to handle Back to Title button press
 local function handleBackToTitleButtonEvent( event )
@@ -66,6 +78,8 @@ local function handleClearStatsButtonEvent( event )
         else
             -- Append data to file
             file:write("")
+            composer.removeScene( "stats" )
+            composer.gotoScene( "stats" )
             -- Close the file handle
             io.close(file)
         end
@@ -87,6 +101,20 @@ function scene:create( event )
     -- Stats page title (STATS)
     local stats_title = display.newText("STATS", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
     sceneGroup:insert(stats_title)
+
+    local stats_table = readStats()
+
+    for k, v in pairs(stats_table) do
+        print("k = " .. k .. ", v = " .. v)
+        local stat_line = display.newText(v, centre, 50 + 25 * k, FONT, STATS_TEXT_SIZE)
+        sceneGroup:insert(stat_line)
+    end
+
+    -- for line in stats_table do
+    --     print("line = " .. line)
+    --     -- display.newText(line, centre, MARGIN, FONT, TITLE_TEXT_SIZE)
+    --     -- sceneGroup:insert(line)
+    -- end
 
     -- Button for View Stats
     local button_clear_stats = widget.newButton(

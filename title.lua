@@ -13,6 +13,7 @@ local widget = require( "widget" )
 FONT = "Arial"
 TITLE_TEXT_SIZE = 27
 LABEL_TEXT_SIZE = 20
+STATS_TEXT_SIZE = 15
 MARGIN = 30
 
 -- Variables for game settings, passed to game.lua

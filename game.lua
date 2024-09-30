@@ -418,11 +418,9 @@ function scene:create( event )
             do
                 cell = math.random(1,9)
                 if board[cell][7] == 0 then
-                    print("Free cell = " .. cell)
+                    print("Easy mode, free cell = " .. cell)
                     -- TODO: Make the computer wait a second so its move doesn't appear instantly
-                    -- fill_cell(cell, computer_token)
-                    print("timer.performwithdelay")
-                    timer.performWithDelay(5000, fill_cell(cell, computer_token))
+                    fill_cell(cell, computer_token)
                     break
                 end
             end
@@ -469,10 +467,30 @@ function scene:create( event )
                     if event.x > board[t][3] and event.x < board [t][5] then
                         if event.y < board[t][4] and event.y > board[t][6] then
                             if board[t][7] == 0 then
-                                print("t = " .. t)
+
+                                -- Difficulty conditional
                                 fill_cell (t, player_1_token)
-                                -- easy_opponent_move()
-                                hard_opponent_move(t)                            
+                                if easy_mode then
+                                    easy_opponent_move()
+                                else
+                                    hard_opponent_move(t)
+                                end
+
+                                -- if player_first then
+                                --     fill_cell (t, player_1_token)
+                                --     if easy_mode then
+                                --         easy_opponent_move()
+                                --     else
+                                --         hard_opponent_move(t)
+                                --     end
+                                -- else
+                                --     if easy_mode then
+                                --         easy_opponent_move()
+                                --     else
+                                --         hard_opponent_move(t)
+                                --     end
+                                --     fill_cell (t, player_1_token)
+                                -- end
                             end
                         end
                     end
@@ -480,6 +498,16 @@ function scene:create( event )
             else
                 print("Game is finished")
             end
+        end
+    end
+
+    if not player_first then
+        if easy_mode then
+            print("computer making first move, easy mode")
+            easy_opponent_move()
+        else
+            print("computer making first move, hard mode")
+            fill_cell(5, computer_token)
         end
     end
 
@@ -505,6 +533,7 @@ function scene:create( event )
     )
     sceneGroup:insert(button_quit_to_title)
 
+    -- TODO: Find out how to remove this
     Runtime:addEventListener("touch", fill)
 
 end
@@ -534,11 +563,9 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
-        -- composer.removeScene("game")
 
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-        -- composer.removeScene("game")
     end
 end
 
@@ -559,7 +586,5 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
-
--- Runtime:addEventListener("touch", fill)
 
 return scene

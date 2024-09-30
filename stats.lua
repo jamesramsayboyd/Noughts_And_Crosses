@@ -24,7 +24,7 @@ local filepath = system.pathForFile("stats.txt", system.DocumentsDirectory)
 -- local filepath = "files/stats.txt"
 
 
-
+-- Function to read game win/loss statistics in from stats.txt file
 local function readStats()
     -- Table to store lines from stats.txt file
     local stats_table = {}
@@ -49,12 +49,6 @@ local function readStats()
     return stats_table
 end
 
--- local function displayStats()
---     local stats_table = readStats()
-
---     for line in stats_table do
---         display
-
 -- Function to handle Back to Title button press
 local function handleBackToTitleButtonEvent( event )
     if ( "ended" == event.phase ) then
@@ -70,16 +64,20 @@ local function handleClearStatsButtonEvent( event )
         print( "Clear Stats button pressed" )
         filepath = system.pathForFile( "stats.txt", system.DocumentsDirectory )
 
+        -- Opening file in w+ mode will remove all existing data
         local file, errorString = io.open( filepath, "w+")
 
         if not file then
             -- Error occurred; output the cause
             print("File error: " .. errorString)
         else
-            -- Append data to file
+            -- Overwrite all data with blank string
             file:write("")
+
+            -- Refresh scene to display newly deleted data
             composer.removeScene( "stats" )
             composer.gotoScene( "stats" )
+
             -- Close the file handle
             io.close(file)
         end
@@ -102,21 +100,17 @@ function scene:create( event )
     local stats_title = display.newText("STATS", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
     sceneGroup:insert(stats_title)
 
+    -- Get stats data from stats.txt
     local stats_table = readStats()
 
+    -- Loop through stats data printing to screen and adding each line to sceneGroup
     for k, v in pairs(stats_table) do
         print("k = " .. k .. ", v = " .. v)
         local stat_line = display.newText(v, centre, 50 + 25 * k, FONT, STATS_TEXT_SIZE)
         sceneGroup:insert(stat_line)
     end
 
-    -- for line in stats_table do
-    --     print("line = " .. line)
-    --     -- display.newText(line, centre, MARGIN, FONT, TITLE_TEXT_SIZE)
-    --     -- sceneGroup:insert(line)
-    -- end
-
-    -- Button for View Stats
+    -- Button for Clear Stats
     local button_clear_stats = widget.newButton(
         {
             id = "button_clear_stats",
@@ -138,7 +132,7 @@ function scene:create( event )
     )
     sceneGroup:insert(button_clear_stats)
 
-    -- Button for View Stats
+    -- Button for Back to Title
     local button_back_to_title = widget.newButton(
         {
             id = "button_back_to_title",
@@ -211,10 +205,5 @@ scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
-
-
-
-
-
 
 return scene

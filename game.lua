@@ -151,6 +151,7 @@ two_in_a_row_combinations = {
 local function handleQuitToTitleButtonEvent( event ) 
     if ( "ended" == event.phase ) then
         print( "Quit to Title button pressed" )
+        add_touch_event_listener("remove")
         composer.removeScene( "game" )
         composer.gotoScene( "title" )
     end
@@ -187,6 +188,7 @@ function scene:create( event )
     tline.strokeWidth = 5
     sceneGroup:insert(tline)
 
+    
     -- Logs winner to stats.txt file
     local function log_game_stats(token)
         date = os.date('%Y-%m-%d %H:%M:%S')
@@ -501,6 +503,20 @@ function scene:create( event )
         end
     end
 
+    -- Function to add and remove Touch event listener when scene is created/destroyed
+    function add_touch_event_listener(directive)
+        if directive == "add" then
+            Runtime:addEventListener("touch", fill)
+        elseif directive == "remove" then
+            Runtime:removeEventListener("touch", fill)
+        end
+    end
+
+    add_touch_event_listener("add")
+
+    -- TODO: Find out how to remove this
+    -- Runtime:addEventListener("touch", fill)
+
     if not player_first then
         if easy_mode then
             print("computer making first move, easy mode")
@@ -533,8 +549,6 @@ function scene:create( event )
     )
     sceneGroup:insert(button_quit_to_title)
 
-    -- TODO: Find out how to remove this
-    Runtime:addEventListener("touch", fill)
 
 end
 
@@ -575,6 +589,7 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
+    add_touch_event_listener("remove")
 end
 
 

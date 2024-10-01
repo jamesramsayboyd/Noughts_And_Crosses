@@ -64,31 +64,23 @@ local function reset_game()
     end
 end
 
--- -- -----------------------------------------------------------------------------------
--- -- Event Handlers for buttons:
--- -- -----------------------------------------------------------------------------------
--- -- Function to handle Undo Last Move button press
--- local function handleUndoLastMoveButtonEvent( event ) 
---     if ( "ended" == event.phase ) then
---         print( "Undo Last Move button pressed" )
---         -- Clear board table entries to mark board cells free
---         board[last_player_move[1]][7] = 0
---         board[last_computer_move[1]][7] = 0
+-- Resets game_stats.txt file when new game begins
+local function reset_game_stats_file()
+    filepath = system.pathForFile( "last_game.txt", system.DocumentsDirectory )
 
---         -- Delete O/X.pngs
+    local file, errorString = io.open( filepath, "w+")
 
---     end
--- end
-
--- -- Function to handle Back to Title button press
--- local function handleQuitToTitleButtonEvent( event ) 
---     if ( "ended" == event.phase ) then
---         print( "Quit to Title button pressed" )
---         add_touch_event_listener("remove")
---         composer.removeScene( "game" )
---         composer.gotoScene( "title" )
---     end
--- end
+    if not file then
+        -- Error occurred; output the cause
+        print("File error: " .. errorString)
+    else
+        -- Append data to file
+        file:write("")
+        -- Close the file handle
+        io.close(file)
+    end
+    file = nil
+end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -99,6 +91,7 @@ function scene:create( event )
 
     local sceneGroup = self.view
     reset_game()
+    reset_game_stats_file()
 
     -- Game title (*difficulty* GAME)
     local game_title = display.newText(easy_mode and "EASY GAME" or "HARD GAME", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
@@ -151,6 +144,37 @@ function scene:create( event )
         file = nil
     end
 
+    -- Logs all moves to last_game.txt file for replay game function
+    local function log_move_to_file(token, cell)
+        move_description = ""
+
+        if cell == 0 then
+            move_description = "*Final move* Result = " .. token .. "\n"
+        else
+            if token == "blank" then
+                move_description = "Turn " .. turn .. ": Move undone\n"
+            else 
+                move_description = "Turn " .. turn ..": " .. token .. " played in cell " .. cell .. "\n"        
+            end
+        end
+
+
+        filepath = system.pathForFile( "last_game.txt", system.DocumentsDirectory )
+
+        local file, errorString = io.open( filepath, "a")
+
+        if not file then
+            -- Error occurred; output the cause
+            print("File error: " .. errorString)
+        else
+            -- Append data to file
+            file:write(move_description)
+            -- Close the file handle
+            io.close(file)
+        end
+        file = nil
+    end
+
     -- Display game result
     local function display_game_result(token)
         local result = ""
@@ -164,12 +188,13 @@ function scene:create( event )
         end
 
         local game_result_label = display.newText(result, centre, MARGIN + 35, FONT, LABEL_TEXT_SIZE)
+        log_move_to_file(result, 0)
         sceneGroup:insert(game_result_label)
     end
 
 
 
-    -- Identifies winner
+    -- Identifies winner, prints to console
     local function identify_winner(token)
         if token == player_1_token then
             print("Player 1 wins!")
@@ -177,8 +202,8 @@ function scene:create( event )
             print("Computer wins!")
         end
 
-        display_game_result(token)
         log_game_stats(token)
+        display_game_result(token)
     end
 
     local function identify_two_rows_of_two(token)
@@ -244,6 +269,7 @@ function scene:create( event )
         print(token .. " placed in " .. board[cell][1] .. " board cell")
     end
 
+
     -- Fills a cell with O or X images
     -- Also logs moves to console, increments turn count and checks turn count
     local function fill_cell (cell, token)
@@ -275,6 +301,7 @@ function scene:create( event )
         end
 
         undo_last_move_possible = true
+        log_move_to_file(token, cell)
     end
 
     -- Fills the opposite corner cell
@@ -351,7 +378,9 @@ function scene:create( event )
 
     end
 
-
+    -- -----------------------------------------------------------------------------------
+    -- Easy Mode/Hard Mode computer player logic
+    -- -----------------------------------------------------------------------------------
     -- OPPONENT'S TURN (EASY MODE, COMPUTER PLAYS RANDOMLY)
     -- Generate random number, check if that cell is empty
     -- Fill with appropriate image (X or O)
@@ -454,8 +483,11 @@ function scene:create( event )
         end
     end
 
+    -- Activate screen touch event listener (will be manually deactivated when quitting to title)
     add_touch_event_listener("add")
 
+    -- Handles play order
+    -- TODO: Make it work
     if not player_first then
         if easy_mode then
             print("computer making first move, easy mode")
@@ -484,7 +516,7 @@ function scene:create( event )
                 turn = turn - 1
                 fill_cell(last_computer_move, "blank")
                 turn = turn - 1
-                
+
                 -- Clear board table entries to mark board cells free
                 board[last_player_move][7] = 0
                 turn = turn - 1
@@ -506,6 +538,9 @@ function scene:create( event )
         end
     end
 
+    -- -----------------------------------------------------------------------------------
+    -- Buttons:
+    -- -----------------------------------------------------------------------------------
     -- Button for Undo Last Move
     local button_undo_last_move = widget.newButton(
         {

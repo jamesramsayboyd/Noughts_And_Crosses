@@ -49,12 +49,12 @@ local function readStats()
     return stats_table
 end
 
--- Function to handle Back to Title button press
-local function handleBackToTitleButtonEvent( event )
+-- Function to handle Replay Last Game button press
+local function handleReplayLastGameButtonEvent( event )
     if ( "ended" == event.phase ) then
-        print( "Back to Title button pressed" )
-        composer.removeScene( "stats" )
-        composer.gotoScene( "title" )
+        print( "Replay Last Game button pressed" )
+        composer.removeScene("stats")
+        composer.gotoScene("replay")
     end
 end
 
@@ -85,6 +85,15 @@ local function handleClearStatsButtonEvent( event )
     end
 end
 
+-- Function to handle Back to Title button press
+local function handleBackToTitleButtonEvent( event )
+    if ( "ended" == event.phase ) then
+        print( "Back to Title button pressed" )
+        composer.removeScene( "stats" )
+        composer.gotoScene( "title" )
+    end
+end
+
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -110,6 +119,28 @@ function scene:create( event )
         sceneGroup:insert(stat_line)
     end
 
+    -- Button for Replay Last Game
+    local button_replay_last_game = widget.newButton(
+        {
+            id = "button_replay_last_game",
+            label = "REPLAY LAST GAME",
+            onEvent = handleReplayLastGameButtonEvent,
+            emboss = false,
+            -- Properties for a rounded rectangle button
+            shape = "roundedRect",
+            width = 180,
+            height = 50,
+            cornerRadius = 2,
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
+            strokeWidth = 4,
+            x = centre,
+            y = third_lowest_button_y
+        }
+    )
+    sceneGroup:insert(button_replay_last_game)
+
     -- Button for Clear Stats
     local button_clear_stats = widget.newButton(
         {
@@ -127,7 +158,6 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            -- y = clear_stats_button_y
             y = second_lowest_button_y
         }
     )
@@ -150,7 +180,6 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            -- y = back_to_title_button_y
             y = lowest_button_y
         }
     )

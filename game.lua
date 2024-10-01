@@ -26,8 +26,8 @@ game_moves = {}
 -- Variables to keep track of last moves for player and computer
 -- Used for Undo Last Move button
 undo_last_move_possible = false
-last_player_move = 1
-last_computer_move = 1
+last_player_move = 0
+last_computer_move = 0
 
 
 d = display
@@ -285,6 +285,7 @@ function scene:create( event )
 
         -- Mark cell as filled
         if (board[cell][7] == 0) then
+            print("Marking cell: " .. cell .. " with token " .. token)
             board[cell][7] = token
             turn = turn + 1
         end
@@ -415,6 +416,8 @@ function scene:create( event )
         -- Else if centre is free (i.e. cell 5), play there
         elseif board[5][7] == 0 then      -- WORKING
             print("Hard Opponent Move: Middle cell is free")
+            print("board[5][7] == " .. board[5][7])
+            print("computer_token = " .. computer_token)
             fill_cell(5, computer_token)
         -- Else if player 1 has played in a corner, play opposite corner
         elseif (identify_opponent_corner_cell(player_1_token) ~= 0) then      -- WORKING
@@ -448,22 +451,6 @@ function scene:create( event )
                                 else
                                     hard_opponent_move(t)
                                 end
-
-                                -- if player_first then
-                                --     fill_cell (t, player_1_token)
-                                --     if easy_mode then
-                                --         easy_opponent_move()
-                                --     else
-                                --         hard_opponent_move(t)
-                                --     end
-                                -- else
-                                --     if easy_mode then
-                                --         easy_opponent_move()
-                                --     else
-                                --         hard_opponent_move(t)
-                                --     end
-                                --     fill_cell (t, player_1_token)
-                                -- end
                             end
                         end
                     end
@@ -486,15 +473,13 @@ function scene:create( event )
     -- Activate screen touch event listener (will be manually deactivated when quitting to title)
     add_touch_event_listener("add")
 
-    -- Handles play order
-    -- TODO: Make it work
+    -- Conditional to give Computer first move if selected. Outside of game loop so it only fires once
     if not player_first then
         if easy_mode then
-            print("computer making first move, easy mode")
             easy_opponent_move()
         else
-            print("computer making first move, hard mode")
-            fill_cell(5, computer_token)
+            -- Hard mode logic will always play centre cell first
+            hard_opponent_move(5)
         end
     end
 
@@ -594,7 +579,6 @@ function scene:show( event )
 
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
-        reset_game()
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen

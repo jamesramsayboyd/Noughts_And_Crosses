@@ -149,7 +149,7 @@ function scene:create( event )
         move_description = ""
 
         if cell == 0 then
-            move_description = "*Final move* Result = " .. token .. "\n"
+            move_description = "\n*Final move* Result = " .. token .. "\n"
         else
             if token == "blank" then
                 move_description = "Turn " .. turn .. ": Move undone\n"
@@ -506,7 +506,7 @@ function scene:create( event )
     local function handleUndoLastMoveButtonEvent( event ) 
         if ( "ended" == event.phase ) then
             print( "Undo Last Move button pressed" )
-            if undo_last_move_possible then
+            if undo_last_move_possible and not game_over then
                 print( "undo_last_move_possible = true")
                 print("last_player_move = " .. last_player_move)
                 print("last_computer_move = " .. last_computer_move)
@@ -519,9 +519,7 @@ function scene:create( event )
 
                 -- Clear board table entries to mark board cells free
                 board[last_player_move][7] = 0
-                turn = turn - 1
                 board[last_computer_move][7] = 0
-                turn = turn - 1
 
                 undo_last_move_possible = false
             end

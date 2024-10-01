@@ -6,6 +6,7 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
+local timer = require("timer")
 local widget = require( "widget" )
 
 -- Variables for screen position
@@ -16,6 +17,33 @@ new_game_button_y = d.contentHeight / 4
 view_stats_button_y = d.contentHeight / 4 * 3
 clear_stats_button_y = d.contentHeight / 5 * 4
 back_to_title_button_y = d.contentHeight - 30
+
+local filepath = system.pathForFile("last_game.txt", system.DocumentsDirectory)
+
+-- Function to display moves of last completed game in order
+local function readLastGameFile()
+    -- Table to store lines from last_game.txt file
+    local last_game = {}
+    local file, errorString = io.open( filepath, "r" )
+
+    if not file then
+        -- Error occurred; output the cause
+        print("File error: " .. errorString)
+    else
+        -- Output lines
+        for line in file:lines() do
+            table.insert(last_game, line)
+            print(line)
+        end
+        -- Close the file
+        io.close(file)
+        
+    end
+
+    file = nil
+    
+    return last_game
+end
 
 -- Function to handle Back to Title button press
 local function handleBackToStatsButtonEvent( event )
@@ -37,18 +65,18 @@ function scene:create( event )
     -- Code here runs when the scene is first created but has not yet appeared on screen
 	
     -- Stats page title (STATS)
-    local replay_title = display.newText("REPLAY LAST GAME", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
+    local replay_title = display.newText("LAST GAME", centre, MARGIN, FONT, TITLE_TEXT_SIZE)
     sceneGroup:insert(replay_title)
 
     -- Get stats data from stats.txt
-    -- local stats_table = readStats()
+    local last_game = readLastGameFile()
 
     -- Loop through stats data printing to screen and adding each line to sceneGroup
-    -- for k, v in pairs(stats_table) do
-    --     print("k = " .. k .. ", v = " .. v)
-    --     local stat_line = display.newText(v, centre, 50 + 25 * k, FONT, STATS_TEXT_SIZE)
-    --     sceneGroup:insert(stat_line)
-    -- end
+    for k, v in pairs(last_game) do
+        print("k = " .. k .. ", v = " .. v)
+        local last_game_line = display.newText(v, centre, 50 + 25 * k, FONT, STATS_TEXT_SIZE)
+        sceneGroup:insert(last_game_line)
+    end
 
     -- Button for Back to Stats
     local button_back_to_stats = widget.newButton(

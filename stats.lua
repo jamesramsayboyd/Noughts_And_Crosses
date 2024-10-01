@@ -127,7 +127,8 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            y = clear_stats_button_y
+            -- y = clear_stats_button_y
+            y = second_lowest_button_y
         }
     )
     sceneGroup:insert(button_clear_stats)
@@ -149,7 +150,8 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            y = back_to_title_button_y
+            -- y = back_to_title_button_y
+            y = lowest_button_y
         }
     )
     sceneGroup:insert(button_back_to_title)

@@ -11,6 +11,7 @@ local timer = require ( "timer" )
 
 -- Access game settings from title menu
 -- require("title")
+require("tables")
 
 -- Flag for game active/over
 game_over = false
@@ -21,6 +22,13 @@ turn = 0
 -- Table to keep track of game moves so player can undo a move or replay a game
 -- Not yet implemented
 game_moves = {}
+
+-- Variables to keep track of last moves for player and computer
+-- Used for Undo Last Move button
+undo_last_move_possible = false
+last_player_move = 1
+last_computer_move = 1
+
 
 d = display
 w20 = d.contentWidth * .2
@@ -56,106 +64,31 @@ local function reset_game()
     end
 end
 
--- Table representing cells at the corners of the board, used in Hard Mode logic
-corner_cells = {
-    {1, 9},
-    {3, 7},
-    {7, 3},
-    {9, 1}
-}
+-- -- -----------------------------------------------------------------------------------
+-- -- Event Handlers for buttons:
+-- -- -----------------------------------------------------------------------------------
+-- -- Function to handle Undo Last Move button press
+-- local function handleUndoLastMoveButtonEvent( event ) 
+--     if ( "ended" == event.phase ) then
+--         print( "Undo Last Move button pressed" )
+--         -- Clear board table entries to mark board cells free
+--         board[last_player_move[1]][7] = 0
+--         board[last_computer_move[1]][7] = 0
 
--- Table representing all possible instances of two-in-a-row connections
--- Usage: Numbers in connected_cells[i] are other board cells that touch board[i]
-two_cell_connections = {
-    {2, 4, 5}, -- 1 is connected to 2, 4 and 5
-    {1, 3, 5}, -- 2 is connected etc
-    {2, 5, 6}, -- 3
-    {1, 5, 7}, -- 4
-    {2, 4, 6, 8}, -- 5
-    {3, 5, 9}, -- 6
-    {4, 5, 8}, -- 7
-    {5, 7, 9}, -- 8
-    {5, 6, 8} -- 9
-}
+--         -- Delete O/X.pngs
 
--- Keeps track of two-in-a-row connections as they are made during a game
-two_in_a_rows = {}
+--     end
+-- end
 
--- Table representing all possible instances of two-rows-of-two connections
-two_rows_of_two_connections = {
-    {1, 2, 4, 5},
-    {2, 3, 5, 6},
-    {4, 5, 7, 8},
-    {5, 6, 8, 9}
-}
-
--- Keeps track of two-rows-of-two connections as they are made during a game
-two_rows_of_twos = {}
-
--- Table representing all possible three-in-a-row connections
-three_cell_connections = {
-    {1, 2, 3},
-    {1, 4, 7},
-    {1, 5, 9},
-    {2, 5, 8},
-    {3, 6, 9},
-    {3, 5, 7},
-    {4, 5, 6},
-    {7, 8, 9}
-}
-
--- Table representing all possible combos leading to a three-in-a-row
--- Extremely amateurish, I'm not happy with this at all, but it's the best idea I have right now
-two_in_a_row_combinations = {
-    {1, 2, 3},
-    {1, 3, 2},
-    {1, 5, 9},
-    {1, 9, 5},
-    {1, 4, 7},
-    {1, 7, 4},
-    {2, 5, 8},
-    {2, 8, 5},
-    {3, 5, 7},
-    {3, 7, 5},
-    {3, 6, 9},
-    {3, 9, 6},
-    {4, 5, 6},
-    {4, 6, 5},
-    {5, 1, 9},
-    {5, 2, 8},
-    {5, 3, 7},
-    {5, 7, 3},
-    {5, 8, 2},
-    {5, 9, 1},
-    {6, 5, 4},
-    {6, 4, 5},
-    {6, 3, 9},
-    {6, 9, 3},
-    {7, 4, 1},
-    {7, 1, 4},
-    {7, 5, 3},
-    {7, 3, 5},
-    {7, 8, 9},
-    {7, 9, 8},
-    {8, 5, 2},
-    {8, 2, 5},
-    {9, 8, 7},
-    {9, 7, 8},
-    {9, 5, 1},
-    {9, 1, 5},
-    {9, 6, 3},
-    {9, 3, 6}
-}
-
--- Function to handle Back to Title button press
-local function handleQuitToTitleButtonEvent( event ) 
-    if ( "ended" == event.phase ) then
-        print( "Quit to Title button pressed" )
-        add_touch_event_listener("remove")
-        composer.removeScene( "game" )
-        composer.gotoScene( "title" )
-    end
-end
+-- -- Function to handle Back to Title button press
+-- local function handleQuitToTitleButtonEvent( event ) 
+--     if ( "ended" == event.phase ) then
+--         print( "Quit to Title button pressed" )
+--         add_touch_event_listener("remove")
+--         composer.removeScene( "game" )
+--         composer.gotoScene( "title" )
+--     end
+-- end
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -316,8 +249,8 @@ function scene:create( event )
     local function fill_cell (cell, token)
         image = "images/" .. token .. ".png"
         r = display.newImage(image)
-        r.xScale = 3
-        r.yScale = 3
+        r.xScale = 2.5
+        r.yScale = 2.5
         r.x = board[cell][3] + (w20 / 2)
         r.y = board[cell][6] + (h20 / 2)
         sceneGroup:insert(r)
@@ -333,6 +266,15 @@ function scene:create( event )
         -- identify_two_in_a_row(token)
         identify_three_in_a_row(token)
         check_for_game_over()
+        
+        -- Update last move trackers so move can be undone
+        if token == player_1_token then
+            last_player_move = cell
+        elseif token == computer_token then
+            last_computer_move = cell
+        end
+
+        undo_last_move_possible = true
     end
 
     -- Fills the opposite corner cell
@@ -524,6 +466,68 @@ function scene:create( event )
         end
     end
 
+    
+    -- -----------------------------------------------------------------------------------
+    -- Event Handlers for buttons:
+    -- -----------------------------------------------------------------------------------
+    -- Function to handle Undo Last Move button press
+    local function handleUndoLastMoveButtonEvent( event ) 
+        if ( "ended" == event.phase ) then
+            print( "Undo Last Move button pressed" )
+            if undo_last_move_possible then
+                print( "undo_last_move_possible = true")
+                print("last_player_move = " .. last_player_move)
+                print("last_computer_move = " .. last_computer_move)
+
+                -- Delete O/X.pngs
+                fill_cell(last_player_move, "blank")
+                turn = turn - 1
+                fill_cell(last_computer_move, "blank")
+                turn = turn - 1
+                
+                -- Clear board table entries to mark board cells free
+                board[last_player_move][7] = 0
+                turn = turn - 1
+                board[last_computer_move][7] = 0
+                turn = turn - 1
+
+                undo_last_move_possible = false
+            end
+        end
+    end
+
+    -- Function to handle Back to Title button press
+    local function handleQuitToTitleButtonEvent( event ) 
+        if ( "ended" == event.phase ) then
+            print( "Quit to Title button pressed" )
+            add_touch_event_listener("remove")
+            composer.removeScene( "game" )
+            composer.gotoScene( "title" )
+        end
+    end
+
+    -- Button for Undo Last Move
+    local button_undo_last_move = widget.newButton(
+        {
+            id = "button_undo_last_move",
+            label = "UNDO LAST MOVE",
+            onEvent = handleUndoLastMoveButtonEvent,
+            emboss = false,
+            -- Properties for a rounded rectangle button
+            shape = "roundedRect",
+            width = 180,
+            height = 50,
+            cornerRadius = 2,
+            labelColor = { default = white, over = white },
+            fillColor = { default = black, over = grey }, 
+            strokeColor = { default = white, over = white },
+            strokeWidth = 4,
+            x = centre,
+            y = second_lowest_button_y
+        }
+    )
+    sceneGroup:insert(button_undo_last_move)
+
     -- Button for Quit to Title
     local button_quit_to_title = widget.newButton(
         {
@@ -541,11 +545,11 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            y = view_stats_button_y
+            -- y = view_stats_button_y + 50
+            y = lowest_button_y
         }
     )
     sceneGroup:insert(button_quit_to_title)
-
 
 end
 

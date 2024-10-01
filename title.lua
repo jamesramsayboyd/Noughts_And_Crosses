@@ -15,6 +15,7 @@ TITLE_TEXT_SIZE = 27
 LABEL_TEXT_SIZE = 20
 STATS_TEXT_SIZE = 15
 MARGIN = 30
+BUTTON_HEIGHT = 70
 
 -- Variables for game settings, passed to game.lua
 easy_mode = true
@@ -28,7 +29,10 @@ centre = d.contentWidth / 2
 quarter_width = d.contentWidth / 4
 switch_y = d.contentHeight / 7
 start_game_button_y = d.contentHeight / 5 * 3.7
-view_stats_button_y = d.contentHeight - MARGIN
+-- view_stats_button_y = d.contentHeight - MARGIN
+lowest_button_y = d.contentHeight + 20
+second_lowest_button_y = lowest_button_y - BUTTON_HEIGHT
+third_lowest_button_y = lowest_button_y - BUTTON_HEIGHT * 2
 
 -- Colours for buttons, sliders
 black = {0, 0, 0, 1}
@@ -186,7 +190,8 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            y = start_game_button_y
+            -- y = start_game_button_y
+            y = second_lowest_button_y
         }
     )
     sceneGroup:insert(button_start_game)
@@ -208,7 +213,7 @@ function scene:create( event )
             strokeColor = { default = white, over = white },
             strokeWidth = 4,
             x = centre,
-            y = view_stats_button_y
+            y = lowest_button_y
         }
     )
     sceneGroup:insert(button_view_stats)

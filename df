@@ -1,0 +1,143 @@
+[33mcommit bd8b627777a21ad95023ced2792aa0762e1dbd07[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Tue Oct 22 12:59:17 2024 +0800
+
+    Starting to work on computer opponent logic
+
+[33mcommit 31cb556e68dffa53b50e406483198aced483197f[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Tue Oct 1 14:45:30 2024 +0800
+
+    Play order option working, all assignment document requirements met (except wonky Hard Mode logic)
+
+[33mcommit abc9e0baa695a1886929fa8ac6a6b1583459bdc8[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Tue Oct 1 13:39:06 2024 +0800
+
+    Replay last game function working
+
+[33mcommit 72044887207b1647ab14cf4c1185281fc3de5f70[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Tue Oct 1 13:02:00 2024 +0800
+
+    Added 'Replay Last Game' scene
+
+[33mcommit 2c7836b61b7bfaf8eafba9fc94e8aae604ff45a5[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Tue Oct 1 10:26:27 2024 +0800
+
+    Undo last move function working
+
+[33mcommit 99931c640c18a5a9cc8abdb6bd8b8c4793ae6bc3[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Mon Sep 30 20:33:39 2024 +0800
+
+    Forgot to save before last commit
+
+[33mcommit f16733e0fdbad6733558cf3e84faa3c9ddb220f1[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Mon Sep 30 20:32:20 2024 +0800
+
+    Solved problem of eventListener not quitting with function to add/remove it
+
+[33mcommit c31af551f0751ed06017741d7907e35aedc39fd2[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Mon Sep 30 14:54:51 2024 +0800
+
+    Added testing folder and document, struggling to remove touch eventlistener from game.lua sceneGroup
+
+[33mcommit f7363694cbbedb560fa85a77ccd9fba21008a2d6[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Mon Sep 30 14:01:03 2024 +0800
+
+    Game working, not replayable within same instance (won't display O/X images)
+
+[33mcommit 5299e5b7f16ae356ece22c58730e6b7bea1b2bdb[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Mon Sep 30 11:46:16 2024 +0800
+
+    View Stats and Clear Stats functions working
+
+[33mcommit 9212d15ec22ffc96417847b829ef201c751892f7[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Sun Sep 29 20:40:16 2024 +0800
+
+    Navigation working, stats page getting there, need to get game page organised into composer scene functions
+
+[33mcommit a08ad35bc820125a6f76b14cc02ce1ba4c673761[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Sun Sep 29 15:18:56 2024 +0800
+
+    Added difficulty, player token and play order options to title screen, composer navigation between screens working
+
+[33mcommit 5e9df095765211eeb135794193ff71798e4e5f82[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Sat Sep 28 18:32:21 2024 +0800
+
+    Beginning to use composer to transition between title, stats and game screens
+
+[33mcommit 94fd2caad6d410b973e5895d210ecf6cc9bf96b8[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Fri Sep 20 10:32:14 2024 +0800
+
+    Function to identify player's two-in-a-row setups working
+
+[33mcommit 6c4c9b7397af8c702a69158a44682495485c323f[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 19 14:53:53 2024 +0800
+
+    Pseudocode written for complete_two_in_a_row() function
+
+[33mcommit 413fa79b4f9293df3d5d4749d86b54711f37ac69[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 19 14:33:57 2024 +0800
+
+    Functions to identify corner cells implemented and working
+
+[33mcommit a46261e99bfafa6e15608044f90fc70af928e26e[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 12 14:57:27 2024 +0800
+
+    Quick syntax fix on else if (should be elseif)
+
+[33mcommit 476b9708e5bf15694d05f676391e0dcef6182e95[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 12 14:53:08 2024 +0800
+
+    Starting to work on Hard Mode logic and functions
+
+[33mcommit 10f2f4685c6ccc3bbcf5984f1e7025eda9447d4d[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 12 14:35:51 2024 +0800
+
+    Added functions to identify two cell connections and three cell connections
+
+[33mcommit 8a0523bc99d81383df0a5d89bad4f56d414c89d4[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 12 10:40:16 2024 +0800
+
+    Week 8 deliverable functionality implemented (Easy mode computer player, Os and Xs printed, all moves logged to console)
+
+[33mcommit dfc06ab1e58c026889b702c8dda38c06fc4b463f[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Wed Sep 11 15:56:51 2024 +0800
+
+    Week 7 Deliverable complete
+
+[33mcommit 54e571ca76eb0249bdbc35418811020019d2f480[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 5 14:57:47 2024 +0800
+
+    Added logic for week 7 deliverable
+
+[33mcommit f201554b21a91302cd5eb3b28e3428ebfa6a2323[m
+Author: jamesramsayboyd <jamesramsayboyd@gmail.com>
+Date:   Thu Sep 5 14:37:45 2024 +0800
+
+    Added Corona/Lua files
+
+[33mcommit 2635970b19e628f36789a95fcfbfcfe1dde138e0[m
+Author: James Boyd <88956638+jamesramsayboyd@users.noreply.github.com>
+Date:   Thu Sep 5 14:27:48 2024 +0800
+
+    Initial commit
